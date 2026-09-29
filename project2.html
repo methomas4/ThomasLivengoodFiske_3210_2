@@ -16,31 +16,47 @@ const orbitalCamera = new THREE.PerspectiveCamera(
   0.1, 
   1000
 );
-orbitalCamera.position.set(0, 50, 0);
+orbitalCamera.position.set(0, 80, 0);
 orbitalCamera.lookAt(new THREE.Vector3(0, 0, 0));
 scene.add(orbitalCamera);
 
 //Define a light source
-const light = new THREE.DirectionalLight(0xffffff, 0.8);
+const light = new THREE.DirectionalLight(0xffffff, 1.0);
 light.position.set(10,20,10);
 scene.add(light);
 
 //Define Planar Mesh
 const planarGeometry = new THREE.PlaneGeometry(100, 100, 128, 128);
-const planarMaterial = new THREE.MeshStandardMaterial({
-    color: 0xc9c73e,
-});
-const planarMesh = new THREE.Mesh(planarGeometry, planarMaterial);
-planarMesh.rotation.x = -Math.PI / 2;
-const positionAttribute = planarGeometry.attributes.position;
-const positions = positionAttribute.array;
-for (let i = 2; i < positions.length; i+=3) {
-    if (!isNaN(positions[i])) {
-        positions[i] += Math.random();
-    }
+
+
+const vertexShader  = `
+float random(vec2 st) {
+    return fract(sin(dot(st.xy, vec2(12.9898, 78.233))) * 43758.5453123);
 }
-positionAttribute.needsUpdate = true;
-planarGeometry.computeVertexNormals();
+    void main() {
+        vec3 newPosition = position;
+        float yOffset = random(position.xy);
+        newPosition.y += yOffset;
+
+
+        gl_Position = projectionMatrix * modelViewMatrix * vec4(newPosition, 1.0);
+    }
+`;
+
+const fragmentShader = `
+  void main() {
+    gl_FragColor = vec4(0.5, 0.7, 1.0, 1.0);
+  }
+`;
+
+const planarMaterial = new THREE.ShaderMaterial({
+    vertexShader: vertexShader,
+    fragmentShader: fragmentShader,
+    side: THREE.DoubleSide
+});
+
+const planarMesh = new THREE.Mesh(planarGeometry, planarMaterial);
+//planarMesh.rotation.x = -Math.PI / 2;
 scene.add(planarMesh);
 
 //Camera Movement
