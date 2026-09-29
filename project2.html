@@ -16,7 +16,7 @@ const orbitalCamera = new THREE.PerspectiveCamera(
   0.1, 
   1000
 );
-orbitalCamera.position.set(0, 80, 0);
+orbitalCamera.position.set(0, 180, 0);
 orbitalCamera.lookAt(new THREE.Vector3(0, 0, 0));
 scene.add(orbitalCamera);
 
@@ -151,6 +151,31 @@ function createSateliteBody(){
     return sateliteBodyMesh;
 }
 
+let currCamera = orbitalCamera;
+
+function switchCamera(){
+    const surfaceCamera = new THREE.OrthographicCamera(
+  -50,50, //left, right
+  50, -50, //up, down
+  0.1, 1000 //near plane, far plane
+);
+
+surfaceCamera.position.set(0, 280, 250);
+surfaceCamera.lookAt(new THREE.Vector3(0, 0, 0));
+window.addEventListener('keydown', (event) => {
+    switch(event.key.toLowerCase()){
+      case 't':
+        if(currCamera == orbitalCamera){
+            currCamera = surfaceCamera;
+        }else{
+            currCamera = orbitalCamera;
+        }
+        console.log("camera switched");
+        break;
+    }
+})
+}
+
 const satelite = new THREE.Group();
 const sateliteBody = createSateliteBody();
 const leftSolarPanel = createSolarPanel(3.7,25,0);
@@ -174,7 +199,8 @@ document.body.appendChild(renderer.domElement);
 function animate() {
   requestAnimationFrame(animate);
   satelite.rotation.x += 0.01;
-  renderer.render(scene, orbitalCamera);
+  switchCamera();
+  renderer.render(scene, currCamera);
   if (wDown == true) {
     orbitalCamera.position.z -= 0.2;
   }
