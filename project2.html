@@ -16,7 +16,6 @@
 
   <script type="module">
 import * as THREE from 'three';
-import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import { DRACOLoader } from 'three/addons/loaders/DRACOLoader.js';
 
@@ -147,7 +146,7 @@ const sateliteDRACOLoader = new DRACOLoader();
 
 sateliteDRACOLoader.setDecoderPath( 'https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/libs/draco/');
 sateliteLoader.setDRACOLoader(sateliteDRACOLoader);
-const sateliteData = await sateliteLoader.loadAsync( './ISS_stationary.glb' );
+const sateliteData = await sateliteLoader.loadAsync( './models/ISS_stationary.glb' );
 const issModel = sateliteData.scene;
 issModel.scale.set(0.25,0.25,0.25);
 satelite.add(issModel);
