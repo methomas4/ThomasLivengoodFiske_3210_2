@@ -41,6 +41,11 @@ const planarGeometry = new THREE.PlaneGeometry(100, 100, 128, 128);
 const seed = Math.random() * 1000;
 const vertexShader  = `
 uniform float uSeed;
+uniform vec3 uPoint;
+uniform float uScale;
+uniform float uArea;
+
+varying float dist;
 
 float random(vec2 st) {
     return fract(sin(dot(st.xy, vec2(10.0, 80.0)) * uSeed) * 43758.5453123); 
