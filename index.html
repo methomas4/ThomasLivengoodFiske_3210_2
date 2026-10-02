@@ -58,9 +58,9 @@ float random(vec2 st) {
         vec4 vertexPosition = modelMatrix * vec4(position, 1.0);
 
         dist = distance(vertexPosition.xy, uPoint.xy);
-        vec3 vertexNew = position;
         if(dist < uArea){
-        newPosition += normal * uScale;
+        float direction = uPoint.z >= vertexPosition.z ? 1.0 : -1.0;
+        newPosition += normal * uScale * direction;
         };
 
         gl_Position = projectionMatrix * modelViewMatrix * vec4(newPosition, 1.0);
