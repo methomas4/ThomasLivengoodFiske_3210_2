@@ -5,9 +5,18 @@
 <body>
     
   <!-- Three.js Dependencies -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script type="importmap">
+    {
+      "imports": {
+        "three": "https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.module.js",
+        "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.128.0/examples/jsm/"
+      }
+    }
+  </script>
 
-    <script type="module">
+  <script type="module">
+import * as THREE from 'three';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 
 const scene = new THREE.Scene();
 const orbitalCamera = new THREE.PerspectiveCamera(
@@ -16,7 +25,7 @@ const orbitalCamera = new THREE.PerspectiveCamera(
   0.1, 
   1000
 );
-orbitalCamera.position.set(0, 180, 0);
+orbitalCamera.position.set(0, 250, 0);
 orbitalCamera.lookAt(new THREE.Vector3(0, 0, 0));
 scene.add(orbitalCamera);
 
@@ -165,7 +174,7 @@ function switchCamera(){
   0.1, 1000 //near plane, far plane
 );
 
-surfaceCamera.position.set(0, 280, 250);
+surfaceCamera.position.set(0, 600, 100);
 surfaceCamera.lookAt(new THREE.Vector3(0, 0, 0));
 window.addEventListener('keydown', (event) => {
     switch(event.key.toLowerCase()){
@@ -175,7 +184,6 @@ window.addEventListener('keydown', (event) => {
         }else{
             currCamera = orbitalCamera;
         }
-        console.log("camera switched");
         break;
     }
 })
@@ -193,18 +201,27 @@ satelite.add(sateliteBody);
 satelite.add(leftSolarPanel);
 satelite.add(rightSolarPanel);
 
-scene.add(satelite);
+const sateliteOrbit = new THREE.Group();
+sateliteOrbit.add(satelite);
+sateliteOrbit.position.x += 100;
+sateliteOrbit.position.y += 40;
+scene.add(sateliteOrbit);
+
 const renderer = new THREE.WebGLRenderer({ antialias: true });
 renderer.setClearColor(0x111111, 1.0); // Dark grey background
 renderer.setSize(window.innerWidth, window.innerHeight);
 renderer.setPixelRatio(window.devicePixelRatio);
 document.body.appendChild(renderer.domElement);
+const orbitRadius = 80;
+let launchAngle = 0;
 
+switchCamera();
 // 5. Render the Frame
 function animate() {
   requestAnimationFrame(animate);
-  satelite.rotation.x += 0.01;
-  switchCamera();
+  launchAngle += 0.01; //Speed of rotation
+  sateliteOrbit.position.x = Math.cos(launchAngle) * orbitRadius; //X-position follows a cosine wave * 80
+  sateliteOrbit.position.y = Math.sin(launchAngle) * orbitRadius; //X-position follows a sine wave * 80
   renderer.render(scene, currCamera);
   if (wDown == true) {
     orbitalCamera.position.z -= 0.2;
