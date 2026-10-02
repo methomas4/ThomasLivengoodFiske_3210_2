@@ -72,7 +72,6 @@ const planarMaterial = new THREE.ShaderMaterial({
 });
 
 const planarMesh = new THREE.Mesh(planarGeometry, planarMaterial);
-//planarMesh.rotation.x = -Math.PI / 2;
 scene.add(planarMesh);
 
 //Camera Movement
@@ -116,16 +115,6 @@ window.addEventListener('keyup', (event) => {
     }   
 });
 
-function createSateliteBody(){
-    const sateliteGeometry = new THREE.CylinderGeometry(1,1,5,64); //(top radius, bottom radius, height, number of radial segments)
-    const sateliteMaterial = new THREE.MeshBasicMaterial({
-            color: 0xfaf9f6, //off-white
-            wireframe: false,
-            side: THREE.DoubleSide
-        });
-    const sateliteBodyMesh = new THREE.Mesh(sateliteGeometry, sateliteMaterial);
-    return sateliteBodyMesh;
-}
 
 let currCamera = orbitalCamera;
 
@@ -136,7 +125,7 @@ function switchCamera(){
   0.1, 1000 //near plane, far plane
 );
 
-surfaceCamera.position.set(0, 600, 100);
+surfaceCamera.position.set(0, 300, 300);
 surfaceCamera.lookAt(new THREE.Vector3(0, 0, 0));
 window.addEventListener('keydown', (event) => {
     switch(event.key.toLowerCase()){
@@ -175,7 +164,7 @@ renderer.setSize(window.innerWidth, window.innerHeight);
 renderer.setPixelRatio(window.devicePixelRatio);
 document.body.appendChild(renderer.domElement);
 
-const orbitRadius = 100;
+const orbitRadius = 70;
 let launchAngle = 0;
 
 switchCamera();
@@ -183,8 +172,8 @@ switchCamera();
 function animate() {
   requestAnimationFrame(animate);
   launchAngle += 0.01; //Speed of rotation
-  sateliteOrbit.position.x = Math.cos(launchAngle) * orbitRadius; //X-position follows a cosine wave * 80
-  sateliteOrbit.position.y = Math.sin(launchAngle) * orbitRadius; //X-position follows a sine wave * 80
+  sateliteOrbit.position.x = Math.cos(launchAngle) * orbitRadius; //X-position follows a cosine wave * 80 to rotate the iss about the planet
+  sateliteOrbit.position.z = Math.sin(launchAngle) * orbitRadius; //Z-position follows a sine wave * 80 to rotate the iss about the planet
   renderer.render(scene, currCamera);
   if (wDown == true) {
     orbitalCamera.position.z -= 0.2;
