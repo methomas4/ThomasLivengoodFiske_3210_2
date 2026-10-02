@@ -50,20 +50,40 @@ float random(vec2 st) {
         float zOffset = random(position.xy) * 10.0;
         newPosition.z += zOffset;
 
+        vec4 vertexPosition = modelMatrix * vec4(position, 1.0);
+
+        dist = distance(vertexPosition.xy, uPoint.xy);
+        vec3 vertexNew = position;
+        if(dist < uArea){
+        newPosition += normal * uScale;
+        };
 
         gl_Position = projectionMatrix * modelViewMatrix * vec4(newPosition, 1.0);
     }
 `;
 
 const fragmentShader = `
+  uniform float uArea;
+  uniform vec3 uHighlight;
+  varying float dist;  
+    
+
   void main() {
-    gl_FragColor = vec4(0.5, 0.7, 1.0, 1.0);
+
+    vec3 meshColor = vec3(0.5, 0.7, 1.0);
+    float highlight = dist < uArea ? 1.0 : 0.0;
+    vec3 color = mix(meshColor, uHighlight, highlight);
+    gl_FragColor = vec4(color, 1.0);
   }
 `;
 
 const planarMaterial = new THREE.ShaderMaterial({
     uniforms: {
-        uSeed: { value: seed }
+        uSeed: { value: seed },
+        uPoint: { value: new THREE.Vector3(0, 0, 0)},
+        uArea: { value: 5},
+        uScale: { value: 20},
+        uHighlight: {value: new THREE.Color(0xffc857)}
     },
     vertexShader: vertexShader,
     fragmentShader: fragmentShader,
@@ -163,14 +183,16 @@ renderer.setSize(window.innerWidth, window.innerHeight);
 renderer.setPixelRatio(window.devicePixelRatio);
 document.body.appendChild(renderer.domElement);
 
-const orbitRadius = 70;
+const clock = new THREE.Clock(true);
+const orbitRadius = 40;
 let launchAngle = 0;
 
 switchCamera();
 // 5. Render the Frame
 function animate() {
   requestAnimationFrame(animate);
-  launchAngle += 0.01; //Speed of rotation
+  const deltaTime = clock.getDelta();
+  launchAngle += 0.5 * deltaTime; //Speed of rotation
   sateliteOrbit.position.x = Math.cos(launchAngle) * orbitRadius; //X-position follows a cosine wave * 80 to rotate the iss about the planet
   sateliteOrbit.position.z = Math.sin(launchAngle) * orbitRadius; //Z-position follows a sine wave * 80 to rotate the iss about the planet
   renderer.render(scene, currCamera);
