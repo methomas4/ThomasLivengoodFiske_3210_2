@@ -19,6 +19,7 @@ import * as THREE from 'three';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import { DRACOLoader } from 'three/addons/loaders/DRACOLoader.js';
 
+
 const scene = new THREE.Scene();
 const orbitalCamera = new THREE.PerspectiveCamera(
   35, 
@@ -87,7 +88,7 @@ const planarMaterial = new THREE.ShaderMaterial({
         uSeed: { value: seed },
         uPoint: { value: new THREE.Vector3(0, 0, 0)},
         uArea: { value: 5},
-        uScale: { value: 20},
+        uScale: { value: 5},
         uHighlight: {value: new THREE.Color(0xffc857)}
     },
     vertexShader: vertexShader,
@@ -195,6 +196,8 @@ let launchAngle = 0;
 
 switchCamera();
 // 5. Render the Frame
+var direction = new THREE.Vector3();
+var right = new THREE.Vector3();
 function animate() {
   requestAnimationFrame(animate);
 
@@ -210,17 +213,21 @@ function animate() {
   sateliteOrbit.position.x = Math.cos(launchAngle) * orbitRadius; //X-position follows a cosine wave * 80 to rotate the iss about the planet
   sateliteOrbit.position.z = Math.sin(launchAngle) * orbitRadius; //Z-position follows a sine wave * 80 to rotate the iss about the planet
   renderer.render(scene, currCamera);
+
+ 
+  orbitalCamera.getWorldDirection(direction);
+  right.crossVectors(direction, orbitalCamera.up).normalize();
   if (wDown == true) {
-    orbitalCamera.position.z -= 0.2;
+    orbitalCamera.position.addScaledVector(direction, 0.2);
   }
   if (sDown == true) {
-    orbitalCamera.position.z += 0.2;
+    orbitalCamera.position.addScaledVector(direction, -0.2);
   }
   if (aDown == true) {
-    orbitalCamera.position.x -= 0.2;
+    orbitalCamera.position.addScaledVector(right, -0.2);
   }
   if (dDown == true) {
-    orbitalCamera.position.x += 0.2;
+    orbitalCamera.position.addScaledVector(right, 0.2);
   }
 }
 animate();
