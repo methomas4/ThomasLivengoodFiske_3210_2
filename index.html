@@ -219,7 +219,7 @@ renderer.setPixelRatio(window.devicePixelRatio);
 document.body.appendChild(renderer.domElement);
 
 const clock = new THREE.Clock(true);
-const orbitRadius = 40;
+const orbitRadius = 80;
 let launchAngle = 0;
 
 
@@ -238,9 +238,15 @@ function animate() {
 
 
   const deltaTime = clock.getDelta();
-  launchAngle += 0.5 * deltaTime; //Speed of rotation
-  sateliteOrbit.position.x = Math.cos(launchAngle) * orbitRadius; //X-position follows a cosine wave * 80 to rotate the iss about the planet
-  sateliteOrbit.position.z = Math.sin(launchAngle) * orbitRadius; //Z-position follows a sine wave * 80 to rotate the iss about the planet
+  launchAngle += 0.5 * deltaTime;
+
+sateliteOrbit.position.x =
+    Math.cos(launchAngle) * orbitRadius;
+
+sateliteOrbit.position.y =
+    Math.sin(launchAngle) * orbitRadius;
+
+sateliteOrbit.position.z = 0;
   renderer.render(scene, currCamera);
 
  
