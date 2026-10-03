@@ -18,17 +18,27 @@
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import { DRACOLoader } from 'three/addons/loaders/DRACOLoader.js';
+import { PointerLockControls } from 'three/addons/controls/PointerLockControls.js';
 
 
 const scene = new THREE.Scene();
+const renderer = new THREE.WebGLRenderer({ antialias: true });
 const orbitalCamera = new THREE.PerspectiveCamera(
   35, 
   window.innerWidth / window.innerHeight, 
   0.1, 
   1000
 );
-orbitalCamera.position.set(0, 0, 250);
+orbitalCamera.position.set(0, 0, 250); // Camera controls
 orbitalCamera.lookAt(new THREE.Vector3(0, 0, 0));
+const controls = new PointerLockControls(
+    orbitalCamera,
+    renderer.domElement
+);
+controls.pointerSpeed = 0.5; // sensitivity
+document.body.addEventListener('click', () => {
+    controls.lock();
+});
 scene.add(orbitalCamera);
 
 //Define a light source
@@ -106,10 +116,8 @@ var wDown = false;
 var sDown = false;
 var aDown = false;
 var dDown = false;
-let leftDown = false;
-let rightDown = false;
-let upDown = false;
-let downDown = false;
+var spaceDown = false;
+var ctrlDown = false;
 
 window.addEventListener('keydown', (event) => {
     switch (event.code) {
@@ -125,17 +133,11 @@ window.addEventListener('keydown', (event) => {
         case 'KeyD':
             dDown = true;
             break;
-        case 'ArrowLeft':
-            leftDown = true;
+        case 'Space':
+            spaceDown = true;
             break;
-        case 'ArrowRight':
-            rightDown = true;
-            break;
-        case 'ArrowUp':
-            upDown = true;
-            break;
-        case 'ArrowDown':
-            downDown = true;
+        case 'ControlLeft':
+            ctrlDown = true;
             break;
     }   
 });
@@ -154,17 +156,11 @@ window.addEventListener('keyup', (event) => {
         case 'KeyD':
             dDown = false;            
             break;
-        case 'ArrowLeft':
-            leftDown = false;
+        case 'Space':
+            spaceDown = false;
             break;
-        case 'ArrowRight':
-            rightDown = false;
-            break;
-        case 'ArrowUp':
-            upDown = false;
-            break;
-        case 'ArrowDown':
-            downDown = false;
+        case 'ControlLeft':
+            ctrlDown = false;
             break;
     }   
 });
@@ -212,7 +208,7 @@ sateliteOrbit.position.x += 100;
 sateliteOrbit.position.y += 40;
 scene.add(sateliteOrbit);
 
-const renderer = new THREE.WebGLRenderer({ antialias: true });
+
 renderer.setClearColor(0x111111, 1.0); // Dark grey background
 renderer.setSize(window.innerWidth, window.innerHeight);
 renderer.setPixelRatio(window.devicePixelRatio);
@@ -225,8 +221,6 @@ let launchAngle = 0;
 
 switchCamera();
 // 5. Render the Frame
-var direction = new THREE.Vector3();
-var right = new THREE.Vector3();
 function animate() {
   requestAnimationFrame(animate);
 
@@ -250,34 +244,24 @@ sateliteOrbit.position.z = 0;
   renderer.render(scene, currCamera);
 
  
-  orbitalCamera.getWorldDirection(direction);
-
-  right.crossVectors(direction, orbitalCamera.up).normalize();
   if (wDown == true) {
-    orbitalCamera.position.addScaledVector(direction, 25 * deltaTime);
+    controls.moveForward(25 * deltaTime);
   }
   if (sDown == true) {
-    orbitalCamera.position.addScaledVector(direction, -25 * deltaTime);
+    controls.moveForward(-25 * deltaTime);
   }
   if (aDown == true) {
-    orbitalCamera.position.addScaledVector(right, -25 * deltaTime);
+    controls.moveRight(-25 * deltaTime)
   }
   if (dDown == true) {
-    orbitalCamera.position.addScaledVector(right, 25 * deltaTime);
+    controls.moveRight(25 * deltaTime)
   }
-  if (leftDown == true) {
-    orbitalCamera.rotation.y += 0.5* deltaTime;
+  if (spaceDown == true) {
+    orbitalCamera.position.y += 25 * deltaTime;
   }
-  if (rightDown == true) {
-    orbitalCamera.rotation.y -= 0.5* deltaTime;
+  if (ctrlDown == true) {
+    orbitalCamera.position.y -= 25 * deltaTime;
   }
-  if (upDown == true) {
-    orbitalCamera.rotation.x += 0.5* deltaTime;
-  }
-  if (downDown == true) {
-    orbitalCamera.rotation.x -= 0.5* deltaTime;
-  }
-  
 }
 animate();
 
