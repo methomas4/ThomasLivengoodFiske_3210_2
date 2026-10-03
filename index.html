@@ -103,7 +103,8 @@ const planarMaterial = new THREE.ShaderMaterial({
     },
     vertexShader: vertexShader,
     fragmentShader: fragmentShader,
-    side: THREE.DoubleSide
+    side: THREE.DoubleSide,
+    wireframe: false
 });
 
 const planarMesh = new THREE.Mesh(planarGeometry, planarMaterial);
@@ -175,15 +176,20 @@ function switchCamera(){
   0.1, 1000 //near plane, far plane
 );
 
-surfaceCamera.position.set(0, 0, 300);
+surfaceCamera.position.set(0, 300, 0);
+surfaceCamera.up.set(0, 0, -1);
 surfaceCamera.lookAt(new THREE.Vector3(0, 0, 0));
 window.addEventListener('keydown', (event) => {
     switch(event.key.toLowerCase()){
       case 't':
         if(currCamera == orbitalCamera){
             currCamera = surfaceCamera;
+            planarMaterial.wireframe = true;
+            controls.unlock();
         }else{
             currCamera = orbitalCamera;
+            planarMaterial.wireframe = false;
+            controls.lock();
         }
         break;
     }
