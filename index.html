@@ -59,7 +59,7 @@ uniform float uArea;
 varying float dist;
 
 float random(vec2 st) {
-    return fract(sin(dot(st.xy, vec2(10.0, 80.0)) * uSeed) * 43758.5453123); 
+    return fract(sin(dot(st.xy, vec2(10.0, 80.0)) * uSeed)); 
 }
     void main() {
         vec3 newPosition = position;
