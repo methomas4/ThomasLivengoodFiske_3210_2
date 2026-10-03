@@ -24,7 +24,7 @@ const scene = new THREE.Scene();
 const orbitalCamera = new THREE.PerspectiveCamera(
   35, 
   window.innerWidth / window.innerHeight, 
-  0.1,
+  0.1, 
   1000
 );
 orbitalCamera.position.set(0, 0, 250);
@@ -219,7 +219,7 @@ renderer.setPixelRatio(window.devicePixelRatio);
 document.body.appendChild(renderer.domElement);
 
 const clock = new THREE.Clock(true);
-const orbitRadius = 70;
+const orbitRadius = 40;
 let launchAngle = 0;
 
 
@@ -278,5 +278,3 @@ animate();
     </script>
 </body>
 </html>
-
-
