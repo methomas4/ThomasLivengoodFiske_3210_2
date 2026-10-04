@@ -220,6 +220,12 @@ function createSateliteBody(){
 
 let currCamera = orbitalCamera;
 
+/*
+  * I used ChatGPT to help debug my camera switching logic.
+  * With each prompt I entered my current code so ChatGPT could see my progress.
+  * I used the following prompt: 
+  * "What is with my camera switching logic not working, is it that the camera object does not have the visible attribute:".
+  */
 function switchCamera(){
     const surfaceCamera = new THREE.OrthographicCamera(
   -50,50, //left, right
@@ -268,6 +274,13 @@ satelite.add(rightSolarPanel);
 satelite.scale.set(1.5,1.5,1.5);
 
 satelite.position.y -= 45;
+
+ /*
+  * I used ChatGPT to help debug my moon import.
+  * With each prompt I entered my current code so ChatGPT could see my progress.
+  * I used the following prompts: 
+  * "Why does this moon not render on the screen, I added it to the scene:" and "I'm trying to learn how to import 3d models in Three.js, but cannot figure out why it says setDracoLoader is not a valid function:".
+  */
 const moonLoader = new GLTFLoader();
 const moonDRACOLoader = new DRACOLoader();
 
@@ -309,14 +322,26 @@ function animate() {
 
 
   const deltaTime = clock.getDelta();
+  /*
+  * I used ChatGPT to help debug my satellite solar panel rotation.
+  * With each prompt I entered my current code so ChatGPT could see my progress.
+  * I used the following prompt: 
+  * "What is wrong with these lines of code for rotation: satelite.leftSolarPanel.rotation.y += 0.01 * deltaTime; satelite.rightSolarPanel.rotation.y += 0.01 * deltaTime;" and "Ok. I think I figured out the rotation, but why does it not rotate in place if it is part of a group?".
+  */
   leftSolarPanel.rotation.x += 1 * deltaTime;
   rightSolarPanel.rotation.x += 1 * deltaTime;
-  // leftSolarPanel.rotation.z += 1 * deltaTime;
-  // rightSolarPanel.rotation.z += 1 * deltaTime;
+
   moon.rotation.y += 0.01;
   moon.rotation.x += 0.01;
   launchAngle += 0.5 * deltaTime;
 
+/*
+  * I used ChatGPT to help debug my satellite orbit.
+  * With each prompt I entered my current code so ChatGPT could see my progress.
+  * I used the following prompts: 
+  * "I've tried setting the launch angle and setting the x,y, and z positions of the model, but none of it has worked, it still spins horizontally, what am I doing wrong:" and 
+  * "Would the function for the z-axis of the sattelite not be a sin function but end at pi radians: sateliteOrbit.position.z += Math.sin(1) / Math.PI;".
+  */
 sateliteOrbit.position.x =
     Math.cos(launchAngle) * orbitRadius;
 
