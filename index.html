@@ -265,6 +265,7 @@ sateliteBody.rotation.y += 45;
 satelite.add(sateliteBody);
 satelite.add(leftSolarPanel);
 satelite.add(rightSolarPanel);
+satelite.scale.set(1.5,1.5,1.5);
 
 satelite.position.y -= 45;
 const moonLoader = new GLTFLoader();
@@ -308,10 +309,10 @@ function animate() {
 
 
   const deltaTime = clock.getDelta();
-  leftSolarPanel.rotation.y += 0.5 * deltaTime;
-  rightSolarPanel.rotation.y += 0.5 * deltaTime;
-  leftSolarPanel.rotation.z += 0.5 * deltaTime;
-  rightSolarPanel.rotation.z += 0.5 * deltaTime;
+  leftSolarPanel.rotation.x += 1 * deltaTime;
+  rightSolarPanel.rotation.x += 1 * deltaTime;
+  // leftSolarPanel.rotation.z += 1 * deltaTime;
+  // rightSolarPanel.rotation.z += 1 * deltaTime;
   moon.rotation.y += 0.01;
   moon.rotation.x += 0.01;
   launchAngle += 0.5 * deltaTime;
