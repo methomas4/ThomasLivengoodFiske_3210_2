@@ -166,6 +166,57 @@ window.addEventListener('keyup', (event) => {
     }   
 });
 
+function createSolarPanel(){
+    const newPanel = new Float32Array([
+        0.5, 0.5, 0.5, //Top point one (bottom left on top side)
+        0.5, 0.5, -0.5, //Top point two (top left on top side)
+        -0.5, 0.5, 0.5, //Top point three (bottom right on top side)
+        -0.5, 0.5, -0.5,//Top point four (top right on top side)
+        0.5, -1.5, -0.5,//Bottom point one (top left on bottom side)
+        0.5, -1.5, 0.5,//Bottom point two (bottom left on bottom side)
+        -0.5, -1.5, 0.5,//Bottom point three (bottom right on bottom side)
+        -0.5, -1.5, -0.5 //Bottom point four (top right on bottom side)
+        ]);
+
+        const panelIndices = [
+            // Top face
+            0, 1, 2,   2, 1, 3,
+            // Bottom face
+            4, 5, 7,   7, 5, 6,
+            // Front face
+            5, 0, 6,   6, 0, 2,
+            // Back face
+            1, 4, 3,   3, 4, 7,
+            // Right face (Positive X)
+            0, 5, 1,   1, 5, 4,
+            // Left face (Negative X)
+            6, 2, 7,   7, 2, 3
+        ];
+        const panelGeometry = new THREE.BufferGeometry();
+        panelGeometry.setIndex(panelIndices);
+        panelGeometry.setAttribute('position', new THREE.BufferAttribute(newPanel, 3));
+
+        const panelMaterial = new THREE.MeshBasicMaterial({
+            color: 0x808080, //gray
+            wireframe: false,
+            side: THREE.DoubleSide
+        });
+
+        const panelMesh = new THREE.Mesh(panelGeometry, panelMaterial);
+        return panelMesh;
+}
+
+function createSateliteBody(){
+    const sateliteGeometry = new THREE.CylinderGeometry(1,1,5,64); //(top radius, bottom radius, height, number of radial segments)
+    const sateliteMaterial = new THREE.MeshBasicMaterial({
+            color: 0xfaf9f6, //off-white
+            wireframe: false,
+            side: THREE.DoubleSide
+        });
+    const sateliteBodyMesh = new THREE.Mesh(sateliteGeometry, sateliteMaterial);
+    return sateliteBodyMesh;
+}
+
 
 let currCamera = orbitalCamera;
 
@@ -197,16 +248,35 @@ window.addEventListener('keydown', (event) => {
 }
 
 const satelite = new THREE.Group();
+const sateliteBody = createSateliteBody();
+const leftSolarPanel = createSolarPanel(3.7,25,0);
+const rightSolarPanel = createSolarPanel(6.3,25,0);
 
-const sateliteLoader = new GLTFLoader();
-const sateliteDRACOLoader = new DRACOLoader();
+leftSolarPanel.position.x = 3.7;
+leftSolarPanel.position.y = 25;
 
-sateliteDRACOLoader.setDecoderPath( 'https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/libs/draco/');
-sateliteLoader.setDRACOLoader(sateliteDRACOLoader);
-const sateliteData = await sateliteLoader.loadAsync( './ISS_stationary.glb' );
-const issModel = sateliteData.scene;
-issModel.scale.set(0.25,0.25,0.25);
-satelite.add(issModel);
+rightSolarPanel.position.y = 25;
+rightSolarPanel.position.x = 6.3;
+
+sateliteBody.position.x = 5;
+sateliteBody.position.y = 25;
+sateliteBody.rotation.y += 45;
+
+satelite.add(sateliteBody);
+satelite.add(leftSolarPanel);
+satelite.add(rightSolarPanel);
+
+satelite.position.y -= 45;
+const moonLoader = new GLTFLoader();
+const moonDRACOLoader = new DRACOLoader();
+
+moonDRACOLoader.setDecoderPath( 'https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/libs/draco/');
+moonLoader.setDRACOLoader(moonDRACOLoader);
+const moonData = await moonLoader.loadAsync( './base_basic_shaded.glb' );
+const moon = moonData.scene;
+moon.position.set(60,60, 20);
+moon.scale.set(7,7,7);
+scene.add(moon);
 
 const sateliteOrbit = new THREE.Group();
 sateliteOrbit.add(satelite);
@@ -238,6 +308,12 @@ function animate() {
 
 
   const deltaTime = clock.getDelta();
+  leftSolarPanel.rotation.y += 0.5 * deltaTime;
+  rightSolarPanel.rotation.y += 0.5 * deltaTime;
+  leftSolarPanel.rotation.z += 0.5 * deltaTime;
+  rightSolarPanel.rotation.z += 0.5 * deltaTime;
+  moon.rotation.y += 0.01;
+  moon.rotation.x += 0.01;
   launchAngle += 0.5 * deltaTime;
 
 sateliteOrbit.position.x =
