@@ -18,7 +18,7 @@
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import { DRACOLoader } from 'three/addons/loaders/DRACOLoader.js';
-import { PointerLockControls } from 'three/addons/controls/PointerLockControls.js';
+import { PointerLockControls } from 'three/addons/controls/PointerLockControls.js'; //Gemini gave me this import when I googled ways to implement camera controls that weren't orbit controls -Diana
 
 
 const scene = new THREE.Scene();
@@ -29,29 +29,30 @@ const orbitalCamera = new THREE.PerspectiveCamera(
   0.1, 
   1000
 );
-orbitalCamera.position.set(0, 0, 250); // Camera controls
+orbitalCamera.position.set(0, 0, 250);
 orbitalCamera.lookAt(new THREE.Vector3(0, 0, 0));
 const controls = new PointerLockControls(
     orbitalCamera,
     renderer.domElement
 );
-controls.pointerSpeed = 0.5; // sensitivity
+controls.pointerSpeed = 0.5; //camera sensitivity
 document.body.addEventListener('click', () => {
     controls.lock();
 });
 scene.add(orbitalCamera);
 
-//Define a light source
-const light = new THREE.DirectionalLight(0xffffff, 1.0);
-light.position.set(10,20,10);
-scene.add(light);
-
 //Define Planar Mesh
 const planarGeometry = new THREE.PlaneGeometry(100, 100, 128, 128);
 
-const seed = Math.random() * 1000;
+var seed = Math.random() * 1000; //random seed so we have different generation each time
+
+/*Used Ai to help with vertex shader, since I wasn't sure where to start with creating one. 
+I had code that updated the position not using a vertex shader, so I asked Ai to help me 
+translate that code into the correct syntax for a vertex shader. -Diana */
+
 const vertexShader  = `
 uniform float uSeed;
+uniform float uTime;
 uniform vec3 uPoint;
 uniform float uScale;
 uniform float uArea;
@@ -63,18 +64,19 @@ float random(vec2 st) {
 }
     void main() {
         vec3 newPosition = position;
-        float zOffset = random(position.xy) * 10.0;
-        newPosition.z += zOffset;
+        float zOffset = random(position.xy) * 10.0; //Generate random offset
+        float wave = sin(uTime + position.x); //Generate the wave, updated in animation loop
+        newPosition.z += zOffset + wave; //Position = generated ofset + wave
 
-        vec4 vertexPosition = modelMatrix * vec4(position, 1.0);
+        vec4 vertexPosition = modelMatrix * vec4(position, 1.0); //Converts local coordinates into world coordinates. Adds the 4th dimension to the 3D vector for matrix multiplication
 
         dist = distance(vertexPosition.xz, uPoint.xz);
         if(dist < uArea){
-        float direction = uPoint.z >= vertexPosition.z ? 1.0 : -1.0;
+        float direction = uPoint.z >= vertexPosition.z ? 1.0 : -1.0; //"Traps" the points inside a specific radius to ensure they don't "fly" off in one direction
         newPosition += normal * uScale * direction;
         };
 
-        gl_Position = projectionMatrix * modelViewMatrix * vec4(newPosition, 1.0);
+        gl_Position = projectionMatrix * modelViewMatrix * vec4(newPosition, 1.0); //Final screen position
     }
 `;
 
@@ -96,6 +98,7 @@ const fragmentShader = `
 const planarMaterial = new THREE.ShaderMaterial({
     uniforms: {
         uSeed: { value: seed },
+        uTime: { value: 0 },
         uPoint: { value: new THREE.Vector3(0, 0, 0)},
         uArea: { value: 5},
         uScale: { value: 5},
@@ -228,12 +231,12 @@ let currCamera = orbitalCamera;
   */
 function switchCamera(){
     const surfaceCamera = new THREE.OrthographicCamera(
-  -50,50, //left, right
-  50, -50, //up, down
-  0.1, 1000 //near plane, far plane
-);
+        -50,50, //left, right
+        50, -50, //up, down
+        0.1, 1000 //near plane, far plane
+    );
 
-surfaceCamera.position.set(0, 300, 0);
+surfaceCamera.position.set(10, 300, 0);
 surfaceCamera.up.set(0, 0, -1);
 surfaceCamera.lookAt(new THREE.Vector3(0, 0, 0));
 window.addEventListener('keydown', (event) => {
@@ -370,6 +373,8 @@ sateliteOrbit.position.z = 0;
   if (ctrlDown == true) {
     orbitalCamera.position.y -= 25 * deltaTime;
   }
+  seed = Math.random() * 1000;
+  planarMaterial.uniforms.uTime.value += deltaTime;
 }
 animate();
 
